@@ -1,0 +1,39 @@
+---
+- name: Install MySQL Server
+  apt:
+    name: mysql-server
+    state: latest
+    update_cache: yes
+
+- name: Install python-mysqldb package
+  apt:
+    name: python-mysqldb
+    state: latest
+    update_cache: yes
+
+- name: Set MySQL root password
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    state: present
+
+- name: Put MySQL root user credentials in /root/.my.cnf
+  template:
+    src: .my.cnf.j2
+    dest: /root/.my.cnf
+    mode: 0600
+
+- name: Set proper sql_mode
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    insertafter: '\[mysqld\]'
+    line: 'sql_mode=""'
+
+
+- name: Restart MySQL
+  service:
+    name: mysql
+    state: restarted

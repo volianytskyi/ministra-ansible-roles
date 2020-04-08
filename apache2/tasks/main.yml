@@ -1,0 +1,84 @@
+---
+- name: Install Apache2
+  apt:
+    name: "{{pkg}}"
+    state: latest
+    update_cache: yes
+  vars:
+    pkg:
+      - apache2
+      - apache2-utils
+      - python-passlib
+
+- name: Enable mod rewrite
+  apache2_module:
+    name: rewrite
+    state: present
+- name: Enable mod remoteip
+  apache2_module:
+    name: remoteip
+    state: present
+- name: Disable mod rpaf
+  apache2_module:
+    name: rpaf
+    state: absent
+
+- name: Change port from 80 to 88
+  replace:
+    path: /etc/apache2/ports.conf
+    regexp: '^Listen(\s){1,}80'
+    replace: 'Listen 88'
+
+- name: Put remoteif.conf
+  template:
+    src: remoteip.conf.j2
+    dest: /etc/apache2/conf-available/remoteip.conf
+
+- name: Enable remoteip.conf config
+  raw: a2enconf remoteip
+
+- name: Change log format in apache2.conf
+  replace:
+    path: /etc/apache2/apache2.conf
+    regexp: 'LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined'
+    replace: 'LogFormat "%a %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined'
+
+- name: Disable root directory browsing
+  replace:
+    path: /etc/apache2/apache2.conf
+    after: '<Directory /var/www/>'
+    regexp: 'Options Indexes FollowSymLinks'
+    replace: 'Options FollowSymLinks'
+
+- name: Add ServerName in apache2.conf
+  lineinfile:
+    path: /etc/apache2/apache2.conf
+    line: ServerName localhost
+
+- name: Disable default virtual host config
+  raw: a2dissite 000-default.conf
+
+- name: Include python passlib
+  include: python.yml
+
+- name: Create Apache2 user to pass Admin Panel Basic Authorization
+  htpasswd:
+    path: /etc/apache2/.htpasswd
+    name: "{{ apache2_username }}"
+    password: "{{ apache2_password }}"
+    owner: root
+    group: www-data
+    mode: 0640
+
+- name: Put portal.conf
+  copy:
+    src: portal.conf
+    dest: /etc/apache2/sites-available/portal.conf
+
+- name: Enable portal.conf
+  raw: a2ensite portal.conf
+
+- name: Restart Apache2
+  service:
+    name: apache2
+    state: restarted

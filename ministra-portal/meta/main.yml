@@ -1,0 +1,7 @@
+---
+dependencies:
+  - { role: locales }
+  - { role: apache2 }
+  - { role: nginx }
+  - { role: mysql-server }
+  - { role: ministra-packages }

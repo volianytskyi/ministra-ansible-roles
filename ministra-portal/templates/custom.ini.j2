@@ -1,0 +1,83 @@
+[database]
+mysql_host = {{ mysql_db_host }}
+mysql_port = 3306
+mysql_user = {{ mysql_username }}
+mysql_pass = {{ mysql_password }}
+db_name = {{ mysql_db_name }}
+
+[l18n]
+default_timezone = {{ timezone }}
+
+[weather]
+weather_provider = openweathermap
+
+[locales]
+default_locale = en_GB.utf8
+allowed_locales[English] = en_GB.utf8
+
+[billing]
+enable_subscription = false
+enable_tariff_plans = true
+enable_internal_billing = true
+
+give_out_advanced_keys_if_standard_keys_has_ended = true
+
+[subscription]
+all_modules[] = tv_archive
+all_modules[] = time_shift
+all_modules[] = time_shift_local
+all_modules[] = remotepvr
+all_modules[] = pvr_local
+all_modules[] = media_browser
+all_modules[] = tv
+all_modules[] = apps
+all_modules[] = dvb
+all_modules[] = epg.reminder
+all_modules[] = epg.recorder
+all_modules[] = epg
+all_modules[] = epg.simple
+all_modules[] = vclub
+all_modules[] = audioclub
+all_modules[] = downloads_dialog
+all_modules[] = downloads
+all_modules[] = karaoke
+all_modules[] = radio
+all_modules[] = magiccast
+all_modules[] = weather.current
+all_modules[] = widget.audio
+all_modules[] = widget.radio
+all_modules[] = records
+all_modules[] = settings
+;all_modules[] = course.widget
+all_modules[] = weather.day
+all_modules[] = cityinfo
+all_modules[] = horoscope
+all_modules[] = anecdote
+all_modules[] = game.mastermind
+all_modules[] = account
+all_modules[] = demo
+all_modules[] = infoportal
+all_modules[] = internet
+all_modules[] = service_management
+all_modules[] = logout
+all_modules[] = account_menu
+
+disabled_modules[] = vclub
+disabled_modules[] = karaoke
+disabled_modules[] = cityinfo
+disabled_modules[] = horoscope
+disabled_modules[] = anecdote
+disabled_modules[] = game.mastermind
+disabled_modules[] = infoportal
+
+[system]
+display_menu_after_loading = true
+update_url = ''
+admin_panel_debug_log = false
+auto_add_stb = false
+default_stb_status = 0
+
+[server_api]
+enable_api = false
+;api_auth_login = stalker
+;api_auth_password = secret_pass

@@ -1,0 +1,30 @@
+---
+- name: Download installer
+  get_url:
+    url: https://flussonic.com/public/install.sh
+    dest: /opt/flussonic-installer.sh
+    mode: a+x
+
+- name: Execute installer
+  command: /opt/flussonic-installer.sh
+
+- name: Delete installer
+  file:
+    path: /opt/flussonic-installer.sh
+    state: absent
+
+- name: Put config file
+  template:
+    src: flussonic.conf.j2
+    dest: /etc/flussonic/flussonic.conf
+
+- name: Put license.txt
+  template:
+    src: license.txt.j2
+    dest: /etc/flussonic/license.txt
+  when: flussonic_license != ""
+
+- name: Start Flussonic service
+  service:
+    name: flussonic
+    state: started

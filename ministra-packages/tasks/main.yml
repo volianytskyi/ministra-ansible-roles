@@ -1,0 +1,56 @@
+---
+- name: Install Ministra Portal Required Packages
+  apt:
+    name: "{{pkg}}"
+    state: latest
+    update_cache: true
+  vars:
+    pkg:
+      - php
+      - php7.0-mcrypt
+      - php7.0-mbstring
+      - memcached
+      - php-mysql
+      - php-pear
+      - nodejs
+      - libapache2-mod-php
+      - npm
+      - unzip
+      - mc
+      - ntpdate
+      - ntp
+
+- name: Get discovered pear channels
+  command: pear list-channels
+  register: discovered_pear_channels
+
+- name: Discover channel pear.phing.info
+  command: pear channel-discover pear.phing.info
+  when: '"pear.phing.info" not in discovered_pear_channels.stdout'
+  ignore_errors: yes
+
+- name: Install phing
+  pear:
+    name: phing/phing
+    state: present
+
+- name: Enable PHP short open tag
+  replace:
+    path: /etc/php/7.0/apache2/php.ini
+    regexp: '^short_open_tag(\s){1,}=(\s){1,}Off'
+    replace: short_open_tag = On
+
+- name: Enable PHP mod encrypt
+  command: phpenmod mcrypt
+
+- name: Install NPM "{{ npm_version }}"
+  npm:
+    name: npm
+    version: "{{ npm_version }}"
+    global: yes
+
+- name: Create nodejs symbolic link
+  file:
+    src: /usr/bin/nodejs
+    dest: /usr/bin/node
+    state: link

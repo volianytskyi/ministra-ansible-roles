@@ -1,0 +1,16 @@
+---
+- name: Install python
+  apt:
+    name: python2.7
+    state: present
+    update-cache: yes
+
+- name: Install python-pip package manager
+  apt:
+    name: python-pip
+    state: present
+    update-cache: yes
+
+- name: Install python passlib
+  pip:
+    name: passlib

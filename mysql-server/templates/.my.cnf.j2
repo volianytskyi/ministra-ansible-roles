@@ -1,0 +1,7 @@
+[mysql]
+user=root
+password={{ hostvars[inventory_hostname]['mysql_root_password'] }}
+
+[mysqldump]
+user=root
+password={{ hostvars[inventory_hostname]['mysql_root_password'] }}

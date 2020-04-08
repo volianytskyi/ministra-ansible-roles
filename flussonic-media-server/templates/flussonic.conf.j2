@@ -1,0 +1,11 @@
+http 8080;
+rtsp 554;
+rtmp 1935;
+auth auth://ministra;
+pulsedb /var/lib/flussonic;
+session_log /var/lib/flussonic;
+edit_auth {{ flussonic_login }} {{ flussonic_password }};
+auth_backend ministra {
+  allow ip {{ ministra_ip }};
+  backend http://{{ ministra_ip }}/stalker_portal/server/api/chk_flussonic_tmp_link.php;
+}

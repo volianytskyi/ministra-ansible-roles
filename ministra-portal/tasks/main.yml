@@ -1,0 +1,81 @@
+---
+- name: Remove default document root folder
+  file:
+    path: /var/www/html
+    state: absent
+
+- name: Copy release version
+  unarchive:
+    src: "v{{ ministra_portal_version }}.zip"
+    dest: /var/www/
+
+- name: Create stalker database user
+  mysql_user:
+    login_user: root
+    login_password: "{{ hostvars[inventory_hostname]['mysql_root_password'] }}"
+    name: "{{ mysql_username }}"
+    host: "{{ mysql_db_host }}"
+    priv: "{{ mysql_db_name }}.*:ALL,GRANT"
+    password: "{{ mysql_password }}"
+    state: present
+
+- name: Move custom.ini
+  template:
+    src: custom.ini.j2
+    dest: /var/www/stalker_portal/server/custom.ini
+
+- name: Move /root/.my.cnf before running phing
+  copy:
+    remote_src: yes
+    src: /root/.my.cnf
+    dest: /root/.my.cnf.tmp
+
+- file:
+    path: /root/.my.cnf
+    state: absent
+
+- name: Tweak build.xml not to promt MySQL root password
+  replace:
+    path: /var/www/stalker_portal/deploy/build.xml
+    regexp: mysql -u root -p mysql
+    replace: "mysql -u root -p{{ hostvars[inventory_hostname]['mysql_root_password'] }} mysql"
+
+- name: Run phing
+  command: phing
+  register: phing_log
+  args:
+    chdir: /var/www/stalker_portal/deploy/
+
+- debug:
+    var: phing_log.stdout
+
+- name: Put back /root/.my.cnf
+  copy:
+    remote_src: yes
+    src: /root/.my.cnf.tmp
+    dest: /root/.my.cnf
+- file:
+    path: /root/.my.cnf.tmp
+    state: absent
+
+- name: Import basic tariff plans configuration
+  copy:
+    src: tariff_plans.sql
+    dest: /tmp/tariff_plans.sql
+
+- raw: "mysql {{ mysql_db_name }} < /tmp/tariff_plans.sql"
+
+- file:
+    path: /tmp/tariff_plans.sql
+    state: absent
+
+- name: Set admin panel password
+  template:
+    src: update_admin_password.sql.j2
+    dest: /tmp/update_admin_password.sql
+
+- raw: "mysql {{ mysql_db_name }} < /tmp/update_admin_password.sql"
+
+- file:
+    path: /tmp/update_admin_password.sql
+    state: absent

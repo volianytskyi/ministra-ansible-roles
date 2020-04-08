@@ -1,0 +1,25 @@
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Disable Nginx default virtual host config
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Put portal Nginx virtual host config
+  copy:
+    src: portal
+    dest: /etc/nginx/sites-available/portal
+
+- name: Enable portal Nginx virtual host config
+  file:
+    src: /etc/nginx/sites-available/portal
+    dest: /etc/nginx/sites-enabled/portal
+    state: link
+
+- name: Restart Nginx
+  service:
+    name: nginx
+    state: restarted

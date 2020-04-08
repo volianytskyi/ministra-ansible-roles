@@ -1,0 +1,7 @@
+---
+mysql_username: stalker
+mysql_password: 1
+mysql_db_name: stalker_db
+mysql_db_host: localhost
+timezone: Europe/Kyiv
+admin_panel_password: 1
